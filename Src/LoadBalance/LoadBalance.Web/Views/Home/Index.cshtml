@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+<div class="text-center">
+    <h3 class="display-4">HOSTNAME : @ViewBag.HostName</h3>
+    <h3 class="display-4">WebAppHostName : @ViewBag.WebAppHostName</h3>
+</div>
+<div class="text-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">行政區</th>
+                <th scope="col">所名</th>
+                <th scope="col">地址</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.City@item.Town</td>
+                    <td>@item.RapidName</td>
+                    <td>@item.Address</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
