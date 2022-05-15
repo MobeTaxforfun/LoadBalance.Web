@@ -1,0 +1,80 @@
+version: '3.4'
+
+# 開啟服務
+services:
+    #MSSQL 資料庫
+    mssql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        user: root
+        ports: 
+            - 11433:1433
+        container_name: loadbalancemssql
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=*Paulwu1688
+        volumes:
+            - ./Data/MSSQL:/var/opt/mssql/data
+        networks: 
+            - lbbankend
+    #網站一
+    loadbalance.web1:
+        image: ${DOCKER_REGISTRY-}loadbalanceweb
+        container_name: lbweb1
+        build:
+            context: .
+            dockerfile: LoadBalance.Web/Dockerfile
+        environment:
+            - dbserver=${DBSERVER}
+            - dbname=${DBNAME} 
+            - dbuser=${DBUSER} 
+            - dbpw=${DBPW} 
+            - webappmsg="我的第一個網站"
+        networks: 
+            - lbbankend
+        ports: 
+            - 7414:80
+        depends_on:
+            - "mssql"
+    #網站二
+    loadbalance.web2:
+        image: ${DOCKER_REGISTRY-}loadbalanceweb
+        container_name: lbweb2
+        build:
+            context: .
+            dockerfile: LoadBalance.Web/Dockerfile
+        environment:
+            - dbserver=${DBSERVER}
+            - dbname=${DBNAME} 
+            - dbuser=${DBUSER} 
+            - dbpw=${DBPW} 
+            - webappmsg="我的第二個網站"
+        networks: 
+            - lbbankend
+        ports: 
+            - 7415:80
+        depends_on:
+            - "mssql"
+
+    #網站三
+    loadbalance.web3:
+        image: ${DOCKER_REGISTRY-}loadbalanceweb
+        container_name: lbweb3
+        build:
+            context: .
+            dockerfile: LoadBalance.Web/Dockerfile
+        environment:
+            - dbserver=${DBSERVER}
+            - dbname=${DBNAME} 
+            - dbuser=${DBUSER} 
+            - dbpw=${DBPW} 
+            - webappmsg="我的第三個網站"
+        networks: 
+            - lbbankend
+        ports: 
+            - 7416:80
+        depends_on:
+            - "mssql"
+# 定義網路介面
+networks:
+    lbbankend:
+        external: true
