@@ -1,3 +1,4 @@
+using LoadBalance.Web.Consul;
 using LoadBalance.Web.Models.Context;
 using LoadBalance.Web.Models.Migration;
 using LoadBalance.Web.Models.SeedData;
@@ -12,9 +13,7 @@ var dbserver = configuration.GetValue<string>("dbserver");
 var dbname = configuration.GetValue<string>("dbname");
 var dbuser = configuration.GetValue<string>("dbuser");
 var dbpw = configuration.GetValue<string>("dbpw");
-
 var webappmsg = configuration.GetValue<string>("webappmsg");
-
 
 Console.WriteLine($"webappmsg:{webappmsg}");
 if (string.IsNullOrEmpty(dbserver))
@@ -62,4 +61,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.UseConsul(configuration);
 app.Run();
