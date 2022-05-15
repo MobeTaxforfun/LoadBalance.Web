@@ -1,12 +1,19 @@
-﻿using LoadBalance.Web.Models.Entity;
+﻿using LoadBalance.Web.Models.Context;
+using LoadBalance.Web.Models.Entity;
 
 namespace LoadBalance.Web.Service
 {
     public class FreeRapidService : IFreeRapidService
     {
+        private readonly LoadBalanceDBContext context;
+
+        public FreeRapidService(LoadBalanceDBContext context)
+        {
+            this.context = context;
+        }
         public List<FreeRapid> LitedFreeRapid()
         {
-            throw new NotImplementedException();
+            return context.FreeRapid.ToList();
         }
     }
 

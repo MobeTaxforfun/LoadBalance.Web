@@ -10,7 +10,7 @@
   "profiles": {
     "LoadBalance.Web": {
       "commandName": "Project",
-      "commandLineArgs": "WebAppHostName=Test",
+      "commandLineArgs": "webappmsg=我的第一個網站 dbserver=127.0.0.1,11433 dbname=Test001",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -30,8 +30,9 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "WebAppHostName": "Test"
+        "WebAppHostName": "Dev"
       },
+      "DockerfileRunArguments": "--network lbbankend",
       "publishAllPorts": true,
       "useSSL": true
     }

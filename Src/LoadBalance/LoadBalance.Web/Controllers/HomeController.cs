@@ -1,4 +1,5 @@
 ﻿using LoadBalance.Web.Models;
+using LoadBalance.Web.Models.Context;
 using LoadBalance.Web.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -23,8 +24,11 @@ namespace LoadBalance.Web.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.WebAppHostName = _configuration["WebAppHostName"];
-            ViewBag.HostName = _configuration["HOSTNAME"];
+            ViewBag.Webappmsg = _configuration["webappmsg"] ?? "一片安靜，毫無反應";
+            ViewBag.HostName = _configuration["HOSTNAME"] ?? "localhost";
+            ViewBag.dbserver = _configuration["dbserver"] ?? "none";
+            ViewBag.dbname = _configuration["dbname"] ?? "none";
+
             return View(this.freeRapidService.LitedFreeRapid());
         }
 

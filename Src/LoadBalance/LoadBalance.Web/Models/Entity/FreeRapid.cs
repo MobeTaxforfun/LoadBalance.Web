@@ -1,7 +1,10 @@
-﻿namespace LoadBalance.Web.Models.Entity
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LoadBalance.Web.Models.Entity
 {
     public class FreeRapid
     {
+        [Key]
         public int Id { get; set; }
         public string City { get; set; }
         public string Town { get; set; }
