@@ -1,4 +1,6 @@
 ﻿using Consul;
+using System.Net;
+using System.Net.Sockets;
 
 namespace LoadBalance.Web.Consul
 {
@@ -6,36 +8,47 @@ namespace LoadBalance.Web.Consul
     {
         public static IApplicationBuilder UseConsul(this IApplicationBuilder app, IConfiguration configuration)
         {
-            var lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+            var webappname = configuration["webappmsg"] ?? "未知的服務";
+            var consulhost = configuration["consulhost"] ?? "未配置服務發現";
+            if(configuration["consulhost"] == null)
+            {
+                return app;
+            }
 
-            var test = Program.IP;
+            var lifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+            var name = Dns.GetHostName();
+            var ip = Dns.GetHostEntry(name).AddressList.FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork);
+            var AppId = "LoadbalanceWeb" + Guid.NewGuid().ToString("N");
+
             ConsulClient client = new ConsulClient(c =>
             {
-                c.Address = new Uri("http://localhost:8500/");
+                c.Address = new Uri($"http://{consulhost}:8500/");
                 c.Datacenter = "dc1";
             });
 
-            client.Agent.ServiceRegister(new AgentServiceRegistration()
-            {
-                ID = "testservice3",
-                Name = "test3",
-                Address = "host.docker.internal", 
-                Port = 7180, 
-                Tags = new string[] { "App.Web" },
-                Check = new AgentServiceCheck()
+            lifetime.ApplicationStarted.Register(() => {
+                client.Agent.ServiceRegister(new AgentServiceRegistration()
                 {
-                    Interval = TimeSpan.FromSeconds(10),
-                    HTTP = $"https://host.docker.internal:7180/Health/Heartbeat",
-                    Timeout = TimeSpan.FromSeconds(5),
-                    DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5)
-                }
+                    ID = AppId,
+                    Name = webappname,
+                    Address = name,
+                    Port = 80,
+                    Tags = new string[] { "App.Web" },
+                    Check = new AgentServiceCheck()
+                    {
+                        Interval = TimeSpan.FromSeconds(10),
+                        HTTP = $"http://{name}/Health/Heartbeat",
+                        Timeout = TimeSpan.FromSeconds(5),
+                        DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5)
+                    }
 
-            }).Wait();
+                }).Wait();
 
+            });
 
             lifetime.ApplicationStopping.Register(() =>
             {
-                client.Agent.ServiceDeregister("testservice1").Wait();
+                client.Agent.ServiceDeregister(AppId).Wait();
             });
 
             return app;
