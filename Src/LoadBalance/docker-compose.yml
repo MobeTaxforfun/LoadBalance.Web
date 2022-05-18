@@ -98,7 +98,8 @@ services:
         ports:
             - 7417:80
         volumes:
-            - ./Data/NGINX/Config/nginx.conf:/etc/nginx/nginx.conf
+            - ./Data/NGINX/config/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./Data/NGINX/config/conf:/etc/nginx/conf.d
         depends_on:
             - "loadbalance.web1"
             - "loadbalance.web2"
