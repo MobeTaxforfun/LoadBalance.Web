@@ -10,7 +10,7 @@
   "profiles": {
     "LoadBalance.Web": {
       "commandName": "Project",
-      "commandLineArgs": "webappmsg=我的第一個網站 dbserver=127.0.0.1,11433 dbname=Test001",
+      "commandLineArgs": "webappmsg=我的第一個網站 dbserver=127.0.0.1,11433 dbname=loadbalancedb dbuser=sa dbpw=*Paulwu1688",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

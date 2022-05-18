@@ -1,3 +1,4 @@
+using LoadBalance.Web.Consul;
 using LoadBalance.Web.Models.Context;
 using LoadBalance.Web.Models.Migration;
 using LoadBalance.Web.Models.SeedData;
@@ -12,37 +13,36 @@ var dbserver = configuration.GetValue<string>("dbserver");
 var dbname = configuration.GetValue<string>("dbname");
 var dbuser = configuration.GetValue<string>("dbuser");
 var dbpw = configuration.GetValue<string>("dbpw");
-
 var webappmsg = configuration.GetValue<string>("webappmsg");
-
-
-Console.WriteLine($"webappmsg:{webappmsg}");
-if (string.IsNullOrEmpty(dbserver))
-{
-    throw new Exception("DB連線尚未設定");
-}
-
-if (string.IsNullOrEmpty(dbname))
-{
-    throw new Exception("尚未指定資料庫名稱");
-}
 #endregion
+Console.WriteLine($"webappmsg:{webappmsg}");
+Console.WriteLine($"dbconnect:Server={dbserver};Database={dbname};User={dbuser};Password={dbpw};");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-//builder.Services.AddTransient<IFreeRapidService, FreeRapidTempSevice>();
-builder.Services.AddTransient<IFreeRapidService, FreeRapidService>();
-
-builder.Services.AddDbContext<LoadBalanceDBContext>(
-    option =>
-    {
-        option.UseSqlServer($"Server={dbserver};Database={dbname};User={dbuser};Password={dbpw};");
-    });
+if (string.IsNullOrEmpty(dbserver))
+{
+    builder.Services.AddTransient<IFreeRapidService, FreeRapidTempSevice>();
+}
+else
+{
+    builder.Services.AddTransient<IFreeRapidService, FreeRapidService>();
+    builder.Services.AddDbContext<LoadBalanceDBContext>(
+        option =>
+        {
+            option.UseSqlServer($"Server={dbserver};Database={dbname};User={dbuser};Password={dbpw};");
+        });
+}
 
 
 var app = builder.Build();
-app.Services.MigrationTestDb();
-app.Services.EnsureSeedData();
+
+if (!string.IsNullOrEmpty(dbserver))
+{
+    app.Services.MigrationTestDb();
+    app.Services.EnsureSeedData();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -62,4 +62,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.UseConsul(configuration);
 app.Run();
