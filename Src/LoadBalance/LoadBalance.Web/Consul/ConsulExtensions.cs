@@ -26,25 +26,22 @@ namespace LoadBalance.Web.Consul
                 c.Datacenter = "dc1";
             });
 
-            lifetime.ApplicationStarted.Register(() => {
-                client.Agent.ServiceRegister(new AgentServiceRegistration()
+            client.Agent.ServiceRegister(new AgentServiceRegistration()
+            {
+                ID = AppId,
+                Name = webappname,
+                Address = name,
+                Port = 80,
+                Tags = new string[] { "App.Web" },
+                Check = new AgentServiceCheck()
                 {
-                    ID = AppId,
-                    Name = webappname,
-                    Address = name,
-                    Port = 80,
-                    Tags = new string[] { "App.Web" },
-                    Check = new AgentServiceCheck()
-                    {
-                        Interval = TimeSpan.FromSeconds(10),
-                        HTTP = $"http://{name}/Health/Heartbeat",
-                        Timeout = TimeSpan.FromSeconds(5),
-                        DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5)
-                    }
+                    Interval = TimeSpan.FromSeconds(10),
+                    HTTP = $"http://{name}/Health/Heartbeat",
+                    Timeout = TimeSpan.FromSeconds(5),
+                    DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(5)
+                }
 
-                }).Wait();
-
-            });
+            }).Wait();
 
             lifetime.ApplicationStopping.Register(() =>
             {
