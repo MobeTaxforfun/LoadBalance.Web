@@ -90,6 +90,20 @@ services:
         depends_on:
             - "mssql"
             - "consul"
+    nginx:
+        image:  nginx
+        container_name: lbnginx
+        networks:
+            - lbbankend
+        ports:
+            - 7417:80
+        volumes:
+            - ./Data/NGINX/Config/nginx.conf:/etc/nginx/nginx.conf
+        depends_on:
+            - "loadbalance.web1"
+            - "loadbalance.web2"
+            - "loadbalance.web3"
+
 # 定義網路介面
 networks:
     lbbankend:
