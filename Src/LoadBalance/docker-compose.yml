@@ -2,6 +2,16 @@ version: '3.4'
 
 # 開啟服務
 services:
+    #Consul 服務發現
+    consul:
+        image: consul
+        container_name: ${CONSUL_HOST}
+        ports:
+            - 8500:8500
+            - 8600:8600/udp
+        command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
+        networks:
+            - lbbankend
     #MSSQL 資料庫
     mssql:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -29,12 +39,14 @@ services:
             - dbuser=${DBUSER} 
             - dbpw=${DBPW} 
             - webappmsg="我的第一個網站"
+            - consulhost=${CONSUL_HOST}
         networks: 
             - lbbankend
         ports: 
             - 7414:80
         depends_on:
             - "mssql"
+            - "consul"
     #網站二
     loadbalance.web2:
         image: ${DOCKER_REGISTRY-}loadbalanceweb
@@ -48,12 +60,14 @@ services:
             - dbuser=${DBUSER} 
             - dbpw=${DBPW} 
             - webappmsg="我的第二個網站"
+            - consulhost=${CONSUL_HOST}
         networks: 
             - lbbankend
         ports: 
             - 7415:80
         depends_on:
             - "mssql"
+            - "consul"
 
     #網站三
     loadbalance.web3:
@@ -68,13 +82,17 @@ services:
             - dbuser=${DBUSER} 
             - dbpw=${DBPW} 
             - webappmsg="我的第三個網站"
+            - consulhost=${CONSUL_HOST}
         networks: 
             - lbbankend
         ports: 
             - 7416:80
         depends_on:
             - "mssql"
+            - "consul"
 # 定義網路介面
 networks:
     lbbankend:
-        external: true
+        #若Docker中已經有此網路使用 external: true 直接使用原有網路
+        #external: true 
+        name: lbbankend
