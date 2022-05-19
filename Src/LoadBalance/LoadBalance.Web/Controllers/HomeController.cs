@@ -24,11 +24,12 @@ namespace LoadBalance.Web.Controllers
 
         public IActionResult Index()
         {
+            VisiterCountTemp.Total++;
             ViewBag.Webappmsg = _configuration["webappmsg"] ?? "一片安靜，毫無反應";
             ViewBag.HostName = _configuration["HOSTNAME"] ?? "localhost";
             ViewBag.dbserver = _configuration["dbserver"] ?? "none";
             ViewBag.dbname = _configuration["dbname"] ?? "none";
-
+            ViewBag.Total = VisiterCountTemp.Total;
             return View(this.freeRapidService.LitedFreeRapid());
         }
 
